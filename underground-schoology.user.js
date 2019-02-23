@@ -266,7 +266,7 @@
     feed.innerHTML = `
 <li style="padding: 5px 24px;">
   <p>${loaded ? `<span tabindex="0" class="clickable" ${UG_ATTR_PFX}-refresh="true">Refresh</span> &middot; <span tabindex="0" class="clickable" ${UG_ATTR_PFX}-sign-out="true">Switch user</span>` : `<img src="/sites/all/themes/schoology_theme/images/ajax-loader.gif" class="more-loading"><span id="${UG_CSS_PFX}-load-progress"></span>`}</p>
-  <p>Your user ID: <strong title="Share this to other people so they can see your posts by following you.">${userID}</strong> &middot; <span tabindex="0" class="clickable" ${UG_ATTR_PFX}-set-bio="true">Set bio</span> &middot; <span tabindex="0" class="clickable" ${UG_ATTR_PFX}-set-pfp="true">Set PFP</span></p>
+  <p>Your user ID: <strong title="Share this to other people so they can see your posts by following you.">${userID}</strong> &middot; <span tabindex="0" class="clickable" ${UG_ATTR_PFX}-set-bio="true">Set bio</span> &middot; <span tabindex="0" class="clickable" ${UG_ATTR_PFX}-set-pfp="true">Set PFP</span> &middot; <span tabindex="0" class="clickable" ${UG_ATTR_PFX}-set-name="true">Set Name</span></p>
   <p>Following (click to unfollow): ${userData.following.map(user => `<span ${UG_ATTR_PFX}-user="${user}"><span tabindex="0" class="clickable" ${UG_ATTR_PFX}-unfollow="${user}">${followData[user] ? escapeHTML(followData[user].name) : '(not yet loaded)'}</span></span>`).join(', ') || 'no one!'} | <span tabindex="0" class="clickable" ${UG_ATTR_PFX}-add-follow="true">Follow user</span></p>
 </li>
 <li id="s-update-create-form" style="margin-bottom: 0; border-bottom: none; padding: 5px 20px 35px;">
@@ -300,6 +300,13 @@
       return ps.setContent(stringify(userData));
     } else return Promise.reject();
   }
+  function deletePost(postID) {
+    const postIndex = userData.posts.findIndex(({id}) => id === postID);
+    if (~postIndex) {
+      userData.posts.splice(postIndex, 1);
+      return ps.setContent(stringify(userData));
+    } else return Promise.reject();
+  }
 
   function comment(content, postID) {
     const now = Date.now();
@@ -312,6 +319,13 @@
     if (comment) {
       comment.edited = Date.now();
       comment.content = content;
+      return ps.setContent(stringify(userData));
+    } else return Promise.reject();
+  }
+  function deleteComment(commentID) {
+    const commentIndex = userData.comments.findIndex(({id}) => id === commentID);
+    if (~commentIndex) {
+      userData.comments.splice(commentIndex, 1);
       return ps.setContent(stringify(userData));
     } else return Promise.reject();
   }
@@ -346,6 +360,10 @@
     userData.bio = content;
     return ps.setContent(stringify(userData));
   }
+  function setName(content) {
+    userData.name = content;
+    return ps.setContent(stringify(userData));
+  }
   function setPFP(url) {
     userData.pfp = url;
     return ps.setContent(stringify(userData));
@@ -371,6 +389,7 @@
         &middot;
         ${likesHTML(post)}
         ${post.author === userID ? `&middot; <span tabindex="0" class="like-btn clickable" ${UG_ATTR_PFX}-edit="${post.id}" ${UG_ATTR_PFX}-edit-mode="post">Edit</span>` : ''}
+        ${post.author === userID ? `&middot; <span tabindex="0" class="like-btn clickable" ${UG_ATTR_PFX}-delete="${post.id}" ${UG_ATTR_PFX}-delete-mode="post">Delete</span>` : ''}
         <div class="feed-comments">
           <div>${post.comments.map(commentHTML).join('')}</div>
           <div class="s-comments-post-form">
@@ -404,6 +423,7 @@
     &middot;
     ${likesHTML(comment)}
     ${comment.author === userID ? `&middot; <span tabindex="0" class="like-btn clickable" ${UG_ATTR_PFX}-edit="${comment.id}" ${UG_ATTR_PFX}-edit-mode="comment">Edit</span>` : ''}
+    ${comment.author === userID ? `&middot; <span tabindex="0" class="like-btn clickable" ${UG_ATTR_PFX}-delete="${comment.id}" ${UG_ATTR_PFX}-delete-mode="comment">Delete</span>` : ''}
   </div>
 </div>`;
   }
@@ -572,9 +592,15 @@ ${data.following.map(user => `<p><span class="${UG_CSS_PFX}-id gray">${user}</sp
       });
     } else if (e.target.dataset[UG_ATTR_JS_PFX + 'SetBio']) {
       setBio(prompt('Set bio to:', userData.bio) || userData.bio);
+    } else if (e.target.dataset.[UG_ATTR_JS_PFX + 'SetName']) {
+      setName(prompt('Set name to:', userData.name) || userData.name);
     } else if (e.target.dataset[UG_ATTR_JS_PFX + 'SetPfp']) {
       const pfp = prompt('Set profile picture URL to (leave empty to remove):', userData.pfp);
       setPFP(pfp === null ? userData.pfp : pfp || null);
+    } else if (e.target.dataset[UG_ATTR_JS_PFX+'Delete']) {
+      (e.target.dataset.[UG_ATTR_JS_PFX+'DeleteMode'] === 'comment' ? deleteComment : deletePost)(e.target.dataset.[UG_ATTR_JS_PFX+'Delete']).then(() => {
+          (e.target.dataset.[UG_ATTR_JS_PFX+'DeleteMode'] === 'comment' ? e.target.parentNode.parentNode : e.target.parentNode.parentNode.parentNode.parentNode).remove();
+      });
     } else if (e.target.dataset[UG_ATTR_JS_PFX + 'Edit']) {
       const targetID = e.target.dataset[UG_ATTR_JS_PFX + 'Edit'];
       const targetContent = e.target.parentNode.previousElementSibling.lastElementChild;
