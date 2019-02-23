@@ -698,7 +698,7 @@ ${data.following.map(user => `<p><span class="${UG_CSS_PFX}-id gray">${user}</sp
       const editMode = e.target.dataset[UG_ATTR_JS_PFX + 'EditMode'];
       const targetID = e.target.dataset[UG_ATTR_JS_PFX + 'Edit'];
       const targetContent = e.target.parentNode.previousElementSibling.lastElementChild;
-      editor.value = editMode === 'comment' ? targetContent.textContent : posts.find(({id}) => id === targetID).content;
+      editor.value = editMode === 'comment' ? targetContent.textContent : userData.posts.find(({id}) => id === targetID).content;
       document.body.appendChild(editPopup);
       onedit = () => {
         (editMode === 'comment' ? editComment : editPost)(editor.value, targetID).then(() => {
