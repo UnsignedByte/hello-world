@@ -342,7 +342,7 @@
   }
 
   function getData(user) {
-    return user === userID ? userData : followData[user];
+    return (user === userID || user+'-'+UG_UID_SFX === userID) ? userData : followData[user];
   }
 
   function post(content) {
@@ -507,7 +507,7 @@
 <p><span class="${UG_CSS_PFX}-id gray">${user}</span></p>
 <p>${escapeHTML(data.bio || '')}</p>
 <p><strong>Following:</strong></p>
-${data.following.map(user => `<p><span class="${UG_CSS_PFX}-id gray">${user}</span> ${user === userID ? '(you)' : userData.following.includes(user) ? `${escapeHTML((getData(user) || {name: '[not loaded]'}).name)}` : `<span tabindex="0" class="like-btn clickable schoology-processed" ${UG_ATTR_PFX}-follow="${user}">Follow</span>`}</p>`).join('') || '<p>(no one)</p>'}`;
+${data.following.map(user => `<p><span class="${UG_CSS_PFX}-id gray">${user}</span> ${(user === userID || user+'-'+UG_UID_SFX === userID) ? '(you)' : userData.following.includes(user) ? `${escapeHTML((getData(user) || {name: '[not loaded]'}).name)}` : `<span tabindex="0" class="like-btn clickable schoology-processed" ${UG_ATTR_PFX}-follow="${user}">Follow</span>`}</p>`).join('') || '<p>(no one)</p>'}`;
   }
 
   let onedit = null;
