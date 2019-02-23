@@ -12,6 +12,7 @@
   'use strict';
 
   const STORAGE_KEY = '[us] userID pre-1.1';
+  const UG_UID_SFX = "underground";
   const UG_CSS_PFX = 'underground-st';
   const UG_ATTR_PFX = 'data-ugs-st';
   const UG_ATTR_JS_PFX = 'ugsSt';
@@ -134,7 +135,12 @@
     }
 
     getContent(id = this.id) {
-      const [uid, portfolioID, pageID, public_hash] = id.split('-');
+      const [uid, portfolioID, pageID, public_hash, ucp] = id.split('-');
+      if(ucp === undefined && id === this.id){
+        this.id+='-'+UG_UID_SFX;
+        userID = this.id;
+        localStorage.setItem(STORAGE_KEY, userID = userID);
+      }
       return fetchJSON(`users/${uid}/portfolios/${portfolioID}/items/${pageID}`,
           {'X-Csrf-Token': this.csrfToken, 'X-Public-Hash': public_hash})
         .then(({metadata: {content}}) => content);
@@ -283,7 +289,7 @@
   }
 
   function getData(user) {
-    return user === userID ? userData : followData[user];
+    return (user === userID || user+'-'+UG_UID_SFX === userID) ? userData : followData[user];
   }
 
   function post(content) {
@@ -448,7 +454,7 @@
 <p><span class="${UG_CSS_PFX}-id gray">${user}</span></p>
 <p>${escapeHTML(data.bio || '')}</p>
 <p><strong>Following:</strong></p>
-${data.following.map(user => `<p><span class="${UG_CSS_PFX}-id gray">${user}</span> ${user === userID ? '(you)' : userData.following.includes(user) ? `${escapeHTML((getData(user) || {name: '[not loaded]'}).name)}` : `<span tabindex="0" class="like-btn clickable schoology-processed" ${UG_ATTR_PFX}-follow="${user}">Follow</span>`}</p>`).join('') || '<p>(no one)</p>'}`;
+${data.following.map(user => `<p><span class="${UG_CSS_PFX}-id gray">${user}</span> ${(user === userID || user+'-'+UG_UID_SFX === userID) ? '(you)' : userData.following.includes(user) ? `${escapeHTML((getData(user) || {name: '[not loaded]'}).name)}` : `<span tabindex="0" class="like-btn clickable schoology-processed" ${UG_ATTR_PFX}-follow="${user}">Follow</span>`}</p>`).join('') || '<p>(no one)</p>'}`;
   }
 
   let onedit = null;
