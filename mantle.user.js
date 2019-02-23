@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Underground Schoology
+// @name         Mantle Schoology
 // @namespace    https://orbiit.github.io/
 // @version      pre-1.1.16
 // @description  A second social media on top of Schoology
