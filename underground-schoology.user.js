@@ -549,7 +549,7 @@ ${data.following.map(user => `<p><span class="${UG_CSS_PFX}-id gray">${user}</sp
       const okBtn = document.getElementById(UG_CSS_PFX + '-auth-ok');
       input.disabled = false;
       if (mode === 'sign-up') {
-        input.placeholder = 'Desired display name (you wont\'t be able to change this)';
+        input.placeholder = 'Desired display name';
       } else {
         input.placeholder = 'User ID here (you can find your user IDs on your profile in the portfolios section)';
       }
