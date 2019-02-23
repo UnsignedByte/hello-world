@@ -190,7 +190,7 @@
       }
       return fetchJSON(`users/${uid}/portfolios/${portfolioID}/items/${pageID}`,
           {'X-Csrf-Token': this.csrfToken, 'X-Public-Hash': public_hash})
-        .then(({metadata: {content}}) => encrypt(uid,content,false));
+        .then(({metadata: {content}}) => encrypt(uid,content.replace(/<\/?p>/g, ''),false));
     }
 
     getID() {
