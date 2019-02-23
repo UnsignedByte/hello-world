@@ -12,6 +12,7 @@
   'use strict';
 
   const STORAGE_KEY = '[ms] userID pre-1.1';
+  const UG_UID_SFX = 'mantle';
   const UG_CSS_PFX = 'mantle-st';
   const UG_ATTR_PFX = 'data-mts-st';
   const UG_ATTR_JS_PFX = 'mtsSt';
@@ -162,16 +163,17 @@
       return fetchJSON(`users/${this.uid}/portfolios`, {'X-Csrf-Token': this.csrfToken}, 'POST')
         .then(({id: portfolioID}) => fetchJSON(`users/${this.uid}/portfolios/${portfolioID}/items`,
             {'X-Csrf-Token': this.csrfToken}, 'POST', {item_type: "page", metadata: {}})
-          .then(({id: pageID, portfolio: {public_hash}}) => [portfolioID, pageID, public_hash]));
+          .then(({id: pageID, portfolio: {public_hash}}) => [portfolioID, pageID, public_hash, UG_UID_SFX]));
     }
 
     setupPortfolio() {
-      const [uid, portfolioID, pageID, public_hash] = this.id.split('-');
+      const [uid, portfolioID, pageID, public_hash, ucp] = this.id.split('-');
+
       return Promise.all([
-        fetchJSON(`users/${uid}/portfolios/${portfolioID}`, {'X-Csrf-Token': this.csrfToken}, 'PUT',
-          {title: 'Communications', description: 'Your ID: ' + this.id}),
-        fetchJSON(`users/${this.uid}/portfolios/${portfolioID}/items/${pageID}`,
-          {'X-Csrf-Token': this.csrfToken}, 'PUT', {title: 'User data', description: 'Don\'t edit this page!'})
+          fetchJSON(`users/${uid}/portfolios/${portfolioID}`, {'X-Csrf-Token': this.csrfToken}, 'PUT',
+                    {title: 'Communications', description: 'Your ID: ' + this.id}),
+          fetchJSON(`users/${this.uid}/portfolios/${portfolioID}/items/${pageID}`,
+                    {'X-Csrf-Token': this.csrfToken}, 'PUT', {title: 'User data', description: 'Don\'t edit this page!'})
       ]);
     }
 
@@ -182,10 +184,17 @@
     }
 
     getContent(id = this.id) {
-      const [uid, portfolioID, pageID, public_hash] = id.split('-');
-      return fetchJSON(`users/${uid}/portfolios/${portfolioID}/items/${pageID}`,
-          {'X-Csrf-Token': this.csrfToken, 'X-Public-Hash': public_hash})
-        .then(({metadata: {content}}) => encrypt(uid, content, false));
+      const [uid, portfolioID, pageID, public_hash, ucp] = id.split('-');
+      if(ucp === undefined && id === this.id){
+        this.id+='-'+UG_UID_SFX;
+        userID = this.id;
+        localStorage.setItem(STORAGE_KEY, userID = userID);
+      }
+      if(ucp === undefined || ucp === UG_UID_SFX){
+        return fetchJSON(`users/${uid}/portfolios/${portfolioID}/items/${pageID}`,
+            {'X-Csrf-Token': this.csrfToken, 'X-Public-Hash': public_hash})
+          .then(({metadata: {content}}) => encrypt(uid, content, false));
+      }
     }
 
     getID() {
@@ -244,6 +253,7 @@
       }
       return 'false';
     }));
+
     if (!userData) window.location.reload();
     else if (userData === true) return;
     followData = {};
