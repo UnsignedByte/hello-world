@@ -592,14 +592,14 @@ ${data.following.map(user => `<p><span class="${UG_CSS_PFX}-id gray">${user}</sp
       });
     } else if (e.target.dataset[UG_ATTR_JS_PFX + 'SetBio']) {
       setBio(prompt('Set bio to:', userData.bio) || userData.bio);
-    } else if (e.target.dataset.[UG_ATTR_JS_PFX + 'SetName']) {
+    } else if (e.target.dataset[UG_ATTR_JS_PFX + 'SetName']) {
       setName(prompt('Set name to:', userData.name) || userData.name);
     } else if (e.target.dataset[UG_ATTR_JS_PFX + 'SetPfp']) {
       const pfp = prompt('Set profile picture URL to (leave empty to remove):', userData.pfp);
       setPFP(pfp === null ? userData.pfp : pfp || null);
     } else if (e.target.dataset[UG_ATTR_JS_PFX+'Delete']) {
-      (e.target.dataset.[UG_ATTR_JS_PFX+'DeleteMode'] === 'comment' ? deleteComment : deletePost)(e.target.dataset.[UG_ATTR_JS_PFX+'Delete']).then(() => {
-          (e.target.dataset.[UG_ATTR_JS_PFX+'DeleteMode'] === 'comment' ? e.target.parentNode.parentNode : e.target.parentNode.parentNode.parentNode.parentNode).remove();
+      (e.target.dataset[UG_ATTR_JS_PFX+'DeleteMode'] === 'comment' ? deleteComment : deletePost)(e.target.dataset[UG_ATTR_JS_PFX+'Delete']).then(() => {
+          (e.target.dataset[UG_ATTR_JS_PFX+'DeleteMode'] === 'comment' ? e.target.parentNode.parentNode : e.target.parentNode.parentNode.parentNode.parentNode).remove();
       });
     } else if (e.target.dataset[UG_ATTR_JS_PFX + 'Edit']) {
       const targetID = e.target.dataset[UG_ATTR_JS_PFX + 'Edit'];
