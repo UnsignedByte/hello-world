@@ -130,15 +130,17 @@
   let ascb64 = (charcode) => (base64chars[Math.floor(charcode / 38)] + base64chars[charcode % 38]);
 
   function encrypt(userid, plaintext, encrypt = true) { // assumes input is all ASCII
-      let seed = parseInt(userid); let rng = new RNG(seed ? seed : 0);
-      let ciphertext = "";
-      if (encrypt) { for (let i = 0; i < plaintext.length; i++) {
-          let offset = (Math.floor(rng.nextInt() / 281)) % 256; let char = ascb64(mod((plaintext.charCodeAt(i) + (2*encrypt-1)* offset), 256)); ciphertext += (Math.random() < 0.4) ? char : char.toUpperCase();
-      } } else { for (let i = 0; i < plaintext.length; i+=2) {
-      let offset = (Math.floor(rng.nextInt() / 281)) % 256; ciphertext += String.fromCharCode(mod((b64asc(plaintext.slice(i,i+2).toLowerCase()) + (2*encrypt-1)* offset), 256));
-      } }
+    if (encrypt) plaintext = encodeURI(plaintext);
+    let seed = parseInt(userid); let rng = new RNG(seed ? seed : 0);
+    let ciphertext = "";
+    if (encrypt) { for (let i = 0; i < plaintext.length; i++) {
+        let offset = (Math.floor(rng.nextInt() / 281)) % 256; let char = ascb64(mod((plaintext.charCodeAt(i) + (2*encrypt-1)* offset), 256)); ciphertext += (Math.random() < 0.4) ? char : char.toUpperCase();
+    } } else { for (let i = 0; i < plaintext.length; i+=2) {
+    let offset = (Math.floor(rng.nextInt() / 281)) % 256; ciphertext += String.fromCharCode(mod((b64asc(plaintext.slice(i,i+2).toLowerCase()) + (2*encrypt-1)* offset), 256));
+    } }
+    if (!encrypt) ciphertext = decodeURI(ciphertext);
 
-      return ciphertext;
+    return ciphertext;
   }
 
 
