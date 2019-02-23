@@ -11,11 +11,11 @@
 (function() {
   'use strict';
 
-  const STORAGE_KEY = '[us] userID pre-1.1';
-  const UG_UID_SFX = "underground";
-  const UG_CSS_PFX = 'underground-st';
-  const UG_ATTR_PFX = 'data-ugs-st';
-  const UG_ATTR_JS_PFX = 'ugsSt';
+  const STORAGE_KEY = '[ms] userID pre-1.1';
+  const UG_UID_SFX = 'mantle';
+  const UG_CSS_PFX = 'mantle-st';
+  const UG_ATTR_PFX = 'data-mts-st';
+  const UG_ATTR_JS_PFX = 'mtsSt';
 
   const styles = document.createElement('style');
   styles.innerHTML = `
@@ -162,14 +162,14 @@
       return fetchJSON(`users/${this.uid}/portfolios`, {'X-Csrf-Token': this.csrfToken}, 'POST')
         .then(({id: portfolioID}) => fetchJSON(`users/${this.uid}/portfolios/${portfolioID}/items`,
             {'X-Csrf-Token': this.csrfToken}, 'POST', {item_type: "page", metadata: {}})
-          .then(({id: pageID, portfolio: {public_hash}}) => [portfolioID, pageID, public_hash]));
+          .then(({id: pageID, portfolio: {public_hash}}) => [portfolioID, pageID, public_hash, UG_UID_SFX]));
     }
 
     setupPortfolio() {
-      const [uid, portfolioID, pageID, public_hash] = this.id.split('-');
+      const [uid, portfolioID, pageID, public_hash, ucp] = this.id.split('-');
       return Promise.all([
         fetchJSON(`users/${uid}/portfolios/${portfolioID}`, {'X-Csrf-Token': this.csrfToken}, 'PUT',
-          {title: 'Underground', description: 'Your ID: ' + this.id}),
+          {title: 'Mantle', description: 'Your ID: ' + this.id}),
         fetchJSON(`users/${this.uid}/portfolios/${portfolioID}/items/${pageID}`,
           {'X-Csrf-Token': this.csrfToken}, 'PUT', {title: 'User data', description: 'Don\'t edit this page!'})
       ]);
@@ -278,7 +278,7 @@
     userData = parse(await ps.getContent().catch(err => {
       console.log(err, err.name);
       if (err.name === 'SyntaxError') { // JSON parse error
-        if (confirm(`Your user data seems to be corrupted; please send the Creators of the Underground your ID (${userID}).\n\nIn the meantime, would you like to create a new account?`)) {
+        if (confirm(`Your user data seems to be corrupted; please send the Creators of the Mantle your ID (${userID}).\n\nIn the meantime, would you like to create a new account?`)) {
           localStorage.removeItem(STORAGE_KEY);
           userID = null;
           ps = null;
@@ -473,7 +473,7 @@
       <div class="edge-sentence">
         <a ${UG_ATTR_PFX}-user="${post.author}">${escapeHTML(getData(post.author).name)}</a>
         <span class="arrow-right"></span>
-        <a>The Underground</a>
+        <a>The Mantle</a>
         <div class="update-body s-rte">${markup(post.content)}</div>
       </div>
       <div class="edge-footer">
@@ -571,11 +571,11 @@ ${data.following.map(user => `<p><span class="${UG_CSS_PFX}-id gray">${user}</sp
   const indicator = document.getElementById('edge-filters-btn');
   const menuItem = document.createElement('span');
   menuItem.className = 'edge-filter-option edge-filter-type-all';
-  menuItem.innerHTML = '<span></span>Underground';
+  menuItem.innerHTML = '<span></span>Mantle';
   menuItem.addEventListener('click', async e => {
     document.querySelector('#edge-filters-menu .edge-filter-option.active').classList.remove('active');
     menuItem.classList.add('active');
-    indicator.textContent = 'Underground';
+    indicator.textContent = 'Mantle';
     let desiredName;
     if (!ps && !userID) {
       feed.innerHTML = `
