@@ -85,18 +85,21 @@
     return new Promise(res => setTimeout(res, ms));
   }
 
+  let LAST_REQUEST_TIME = 0;
+
   function fetchJSON(path, headers, method = 'GET', body = undefined, tolerance = 0) {
-    return fetch('https://pausd.schoology.com/portfolios/' + path, {method, headers, body: body && JSON.stringify(body)})
+    return wait(LAST_REQUEST_TIME-Date.now()+5000).then(() => fetch('https://pausd.schoology.com/portfolios/' + path, {method, headers, body: body && JSON.stringify(body)})
       .then(r => {
         if (r.status === 500 || r.status === 404) {
-          if (tolerance < 50) return fetchJSON(path, headers, method, body, tolerance + 1);
+          LAST_REQUEST_TIME = Date.now();
+          if (tolerance < 1000) return fetchJSON(path, headers, method, body, tolerance + 1);
           else {
             console.warn('Gave up fetching ' + path);
             return Promise.reject(new SyntaxError());
           }
         }
         return r.json().then(({data}) => data);
-      });
+      }));
   }
 
   class PortfolioStorer {
@@ -139,6 +142,7 @@
     }
 
     getContent(id = this.id) {
+      console.log("Retrieving", id);
       const [uid, portfolioID, pageID, public_hash, ucp] = id.split('-');
       if(ucp === undefined && id === this.id){
         this.id+='-'+UG_UID_SFX;
