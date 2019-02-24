@@ -306,12 +306,12 @@
       const post = posts.find(post => target === post.id);
       if (post) {
         if (!post.likes) post.likes = [];
-        if (!post.likes.includes(user)) post.likes.push(user);
+        if (!post.likes.includes(user) || post.likes.includes(user+'-'+UG_UID_SFX)) post.likes.push(user);
       } else {
         const comment = allComments.find(comment => target === comment.id);
         if (comment) {
           if (!comment.likes) comment.likes = [];
-          if (!comment.likes.includes(user)) comment.likes.push(user);
+          if (!comment.likes.includes(user) || comment.likes.includes(user+'-'+UG_UID_SFX)) comment.likes.push(user);
         }
       }
     }));
@@ -501,11 +501,11 @@
     const data = getData(user);
     if (!data) return `<em>User data not loaded</em>`;
     return `
-<div class="${UG_CSS_PFX}-vertalign"><div class="${UG_CSS_PFX}-pfp ${UG_CSS_PFX}-user-card-pfp" style="background-image: ${pfps[user]};"></div><strong>${escapeHTML(data.name)}</strong> ${userData.following.includes(user) ? `<span tabindex="0" class="clickable" ${UG_ATTR_PFX}-unfollow="${user}">Unfollow</span>` : ''}</div>
+<div class="${UG_CSS_PFX}-vertalign"><div class="${UG_CSS_PFX}-pfp ${UG_CSS_PFX}-user-card-pfp" style="background-image: ${pfps[user]};"></div><strong>${escapeHTML(data.name)}</strong> ${(userData.following.includes(user) || userData.following.includes(user+'-'+UG_UID_SFX)) ? `<span tabindex="0" class="clickable" ${UG_ATTR_PFX}-unfollow="${user}">Unfollow</span>` : ''}</div>
 <p><span class="${UG_CSS_PFX}-id gray">${user}</span></p>
 <div class="s-rte" style="white-space: normal; overflow: visible;">${markup(data.bio || '')}</div>
 <p><strong>Following:</strong></p>
-${data.following.map(user => `<p><span class="${UG_CSS_PFX}-id gray">${user}</span> ${(user === userID || user+'-'+UG_UID_SFX === userID) ? '(you)' : userData.following.includes(user) ? `${escapeHTML((getData(user) || {name: '[not loaded]'}).name)}` : `<span tabindex="0" class="like-btn clickable schoology-processed" ${UG_ATTR_PFX}-follow="${user}">Follow</span>`}</p>`).join('') || '<p>(no one)</p>'}`;
+${data.following.map(user => `<p><span class="${UG_CSS_PFX}-id gray">${user}</span> ${(user === userID || user+'-'+UG_UID_SFX === userID) ? '(you)' : (userData.following.includes(user) || userData.following.includes(user+'-'+UG_UID_SFX)) ? `${escapeHTML((getData(user) || {name: '[not loaded]'}).name)}` : `<span tabindex="0" class="like-btn clickable schoology-processed" ${UG_ATTR_PFX}-follow="${user}">Follow</span>`}</p>`).join('') || '<p>(no one)</p>'}`;
   }
 
   let onedit = null;
